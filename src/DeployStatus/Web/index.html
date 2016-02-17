@@ -1,0 +1,101 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Swan System deploy status</title>
+    <link rel="stylesheet" type="text/css" href="semantic/semantic.min.css">
+
+    <script src="scripts/jquery-1.9.0.min.js"></script>
+    <script src="scripts/jquery.signalr-2.1.0.min.js"></script>
+    <script src="scripts/knockout-3.3.0.js"></script>
+    <script src="scripts/knockout.mapping-latest.js"></script>
+    <script src="scripts/moment.min.js"></script>      
+    <script src="semantic/semantic.min.js"></script> 
+    <script src="scripts/main.js"></script>
+    <script src="signalr/hubs"></script>   
+    <style type="text/css">
+    .container {
+      padding: 2em 0em;
+    }
+    </style>
+</head>
+<body>
+
+<div class="ui container">
+    <h1 class="ui dividing header">
+        <span data-bind="text: Name"></span>
+        <div class="sub header">Last server update: <span data-bind="dateString: LastUpdated, datePattern: 'MMMM Do YYYY, H:mm:ss a'"></span></div>
+    </h1>
+</div>
+<div class="ui container four cards" data-bind="foreach: Environments">
+    <div class="card">
+        <div class="content">
+            <h4 class="ui header">
+                <span data-bind="text: Name"></span>
+                <div class="sub header" data-bind="text: Branch"></div>
+            </h4>
+        </div>
+        <div class="extra content">
+            <div class="description">
+                <div class="ui header">
+                    <!-- public enum TaskState
+                    {
+                    Queued = 1,
+                    Executing = 2,
+                    Failed = 3,
+                    Canceled = 4,
+                    TimedOut = 5,
+                    Success = 6,
+                    Cancelling = 8,
+                    }
+                    -->
+
+                    <!-- ko if: State() === 2 -->
+                    <i class="blue spinner loading circular inverted icon rounded"></i> <!-- Executing -->
+                    <!-- /ko -->
+                    <!-- ko if: State() === 3 -->
+                    <i class="red warning bordered large inverted icon rounded"></i> <!-- Failed -->
+                    <!-- /ko -->
+                    <!-- ko if: State() === 6 -->
+                    <i class="green check bordered large inverted icon rounded"></i> <!-- Success -->
+                    <!-- /ko -->
+                    <div class="content">
+                        <a target="_blank" data-bind="text: Version, attr: { href: OctopusDeployLink }"></a>
+                        <div class="sub header" data-bind="dateString: Started, datePattern: 'MMMM Do YYYY'"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="extra content">
+            <div class="description">
+                Deployed by: <span data-bind="text: DeployedBy"></span>
+            </div>
+        </div>
+        <div class="extra content">
+            <div class="ui dropdown">
+                <div class="text">Trellos (<span data-bind="text: Trellos().length"></span>)
+                </div>
+                <i class="dropdown icon"></i>
+                <div class="menu" data-bind="foreach: Trellos">
+                    <div class="item">
+                        <i class="trello icon"></i>
+                        <a class="content" target="_blank" data-bind="text: Name, attr: { href: Link }"></a>
+                    </div>
+                </div>
+            </div>
+            <div class="ui dropdown right floated">
+                <div class="text">Builds (<span data-bind="text: Builds().length"></span>)
+                </div>
+                <i class="dropdown icon"></i>
+                <div class="menu" data-bind="foreach: Builds">
+                    <div class="item">
+                        <i class="cubes icon" data-bind="css: { red: Status() == 'FAILURE', green: Status() == 'SUCCESS' }"></i>
+                        <a class="content" target="_blank" data-bind="attr: { href: Link }"><span data-bind="text: Name"></span> (Triggered: <span data-bind="dateString: TriggeredAt, datePattern: 'MMMM Do YYYY'"></span>)</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
