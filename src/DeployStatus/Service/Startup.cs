@@ -5,7 +5,7 @@ using Microsoft.Owin.FileSystems;
 using Microsoft.Owin.StaticFiles;
 using Owin;
 
-namespace DeployStatus
+namespace DeployStatus.Service
 {
     public class Startup
     {

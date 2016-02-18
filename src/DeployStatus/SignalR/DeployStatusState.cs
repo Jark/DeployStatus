@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using DeployStatus.ApiClients;
 using DeployStatus.Configuration;
+using log4net;
 using Microsoft.AspNet.SignalR;
 
 namespace DeployStatus.SignalR
@@ -21,36 +22,46 @@ namespace DeployStatus.SignalR
         private readonly IHubContext<IDeployStatusClient> context;
         private readonly Timer timer;
         private DeployStatusInfoClient deployStatusInfoClient;
-        private DeployStatusConfiguration configuration;
+        private DeployStatusConfiguration deployStatusConfiguration;
+        private readonly ILog log;
 
         private DeployStatusState(IHubContext<IDeployStatusClient> context)
         {
             this.context = context;
             timer = new Timer(UpdateDeploySystemStatus);
+            log = LogManager.GetLogger(typeof (DeployStatusState));
         }
 
         public void Start(DeployStatusConfiguration configuration)
         {
             deployStatusInfoClient = new DeployStatusInfoClient(configuration);
-            this.configuration = configuration;
+            this.deployStatusConfiguration = configuration;
             timer.Change(TimeSpan.FromMinutes(0), TimeSpan.FromMilliseconds(-1));
+            log.Info("Timer started");
         }
 
         private async void UpdateDeploySystemStatus(object state)
         {
             try
             {
+                log.Info("Deploy system state polling started.");
+                var started = DateTime.Now;
                 var status = await deployStatusInfoClient.GetDeployStatus();
+                log.InfoFormat("Deploy system state polling finished in {0}ms.", (DateTime.Now - started).TotalMilliseconds);
+
+                log.Info("Pushing out update via SignalR.");
                 var newEnvironments = GetEnvironments(status, deployStatusInfoClient.DeployUserResolver);
-                var newDeploySystemStatus = new DeploySystemStatus(configuration.Name, DateTime.UtcNow, newEnvironments);
+                var newDeploySystemStatus = new DeploySystemStatus(deployStatusConfiguration.Name, DateTime.UtcNow, newEnvironments);
                 lock (locker)
                 {
                     deploySystemStatus = newDeploySystemStatus;
                 }
                 context.Clients.All.DeploySystemStatusChanged(deploySystemStatus);
+                log.Info("SignalR update pushed.");
             }
             catch (Exception ex)
             {
+                log.Error($"Error occurred polling for deploy status: {ex}.", ex);
                 Debug.Assert(true, ex.ToString());
             }
 
@@ -96,7 +107,9 @@ namespace DeployStatus.SignalR
 
         public void Stop()
         {
+            log.Info("Stopping service...");
             timer.Dispose();
+            log.Info("Service stopped.");
         }
     }
 }

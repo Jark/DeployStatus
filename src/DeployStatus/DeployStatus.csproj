@@ -33,6 +33,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="log4net, Version=1.2.15.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.5\lib\net45-full\log4net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.AspNet.SignalR.Core, Version=2.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.SignalR.Core.2.2.0\lib\net45\Microsoft.AspNet.SignalR.Core.dll</HintPath>
       <Private>True</Private>
@@ -84,6 +88,7 @@
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.ServiceProcess" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -107,6 +112,11 @@
     <Compile Include="Configuration\IDeployUserResolver.cs" />
     <Compile Include="Configuration\DeployStatusSettingsSection.cs" />
     <Compile Include="Configuration\OctopusSettingsElement.cs" />
+    <Compile Include="Service\DeployStatusService.cs" />
+    <Compile Include="Service\IService.cs" />
+    <Compile Include="Service\ServiceRunner.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="SignalR\DeployStatusHub.cs" />
     <Compile Include="SignalR\DeployStatusState.cs" />
     <Compile Include="SignalR\DeploySystemStatus.cs" />
@@ -119,7 +129,7 @@
     <Compile Include="ApiClients\TrelloCardInfo.cs" />
     <Compile Include="ApiClients\TrelloClient.cs" />
     <Compile Include="Configuration\SimpleDeployUserResolver.cs" />
-    <Compile Include="Startup.cs" />
+    <Compile Include="Service\Startup.cs" />
     <Compile Include="SignalR\TeamCityBuild.cs" />
     <Compile Include="SignalR\Trello.cs" />
     <Compile Include="Configuration\TeamCitySettingsElement.cs" />
