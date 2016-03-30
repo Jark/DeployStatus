@@ -35,8 +35,6 @@ namespace DeployStatus.Service
 
         public void Stop()
         {
-            Console.ReadKey();
-
             webApp.Dispose();
             DeployStatusState.Instance.Value.Stop();
         }
