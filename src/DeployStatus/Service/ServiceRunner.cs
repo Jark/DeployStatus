@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ServiceProcess;
 using log4net;
 
@@ -7,38 +8,44 @@ namespace DeployStatus.Service
     public class ServiceRunner : ServiceBase
     {
         private readonly ILog log;
-        private readonly IService service;
+        private readonly IEnumerable<IService> services;
 
-        public ServiceRunner(IService service)
+        public ServiceRunner(params IService[] services)
         {
             log = LogManager.GetLogger(typeof(ServiceRunner));
-            this.service = service;
+            this.services = services;
         }
 
         protected override void OnStart(string[] args)
         {
-            try
+            foreach (var service in services)
             {
-                service.Start();
-            }
-            catch (Exception ex)
-            {
-                log.Error("Error during OnStart.", ex);
-                throw;
-            }
+                try
+                {
+                    service.Start();
+                }
+                catch (Exception ex)
+                {
+                    log.Error($"Error during OnStart for service: {service}.", ex);
+                    throw;
+                }
+            }           
         }
 
         protected override void OnStop()
         {
-            try
+            foreach (var service in services)
             {
-                service.Stop();
-            }
-            catch (Exception ex)
-            {
-                log.Error("Unable to dispose server.", ex);
-                throw;
-            }
+                try
+                {
+                    service.Stop();
+                }
+                catch (Exception ex)
+                {
+                    log.Error($"Unable to dispose service {service}.", ex);
+                    throw;
+                }
+            }           
         }
     }
 }
