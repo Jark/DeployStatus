@@ -41,7 +41,7 @@ namespace DeployStatus.ApiClients
             var restRequest = new RestRequest("search/");
             restRequest.AddParameter("modelTypes", "cards,members");
             restRequest.AddParameter("query", string.Format(searchTemplate, searchString));
-            restRequest.AddParameter("cards_limit", 1000);
+            restRequest.AddParameter("cards_limit", 10); // cap at 10 cards for now
             restRequest.AddParameter("card_fields", "idMembers,url,name");
 
             var result = await restClient.ExecuteGetTaskAsync<SearchResult>(restRequest);
