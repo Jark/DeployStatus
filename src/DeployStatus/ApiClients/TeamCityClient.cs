@@ -59,7 +59,8 @@ namespace DeployStatus.ApiClients
             if (triggeredBy == null)
                 return default(DateTime);
 
-            return DateTime.ParseExact(triggeredBy.Date, "yyyyMMddTHHmmss+0000", CultureInfo.InvariantCulture);
+            // todo: parse time zones which don't use whole hours
+            return DateTime.ParseExact(triggeredBy.Date, "yyyyMMddTHHmmsszz00", CultureInfo.InvariantCulture);
         }
 
         private static string GetUsername(TeamCityUser user)
