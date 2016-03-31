@@ -12,27 +12,45 @@ namespace DeployStatus.Configuration
                 settings.Name,
                 settings.WebAppUrl,
                 settings.Trello.AsTrelloApiConfiguration(),
-                GetOctopusApiConfiguration(settings.Octopus),
-                GetTeamCityApiConfiguration(settings.TeamCity),
-                GetDeployUserResolver(settings.ComplexDeployUserConfiguration));
+                settings.Octopus.AsOctopusApiConfiguration(),
+                settings.TeamCity.AsTeamCityApiConfiguration(),
+                settings.ComplexDeployUserConfiguration.AsDeployUserResolver());
         }
 
         private static TrelloApiConfiguration AsTrelloApiConfiguration(this TrelloSettingsElement trello)
         {
-            return new TrelloApiConfiguration(trello.Key, trello.Token, trello.BoardName, GetListFromCommaSeparatedSequence(trello.FilterCardsFromColumns));
+            return new TrelloApiConfiguration(
+                trello.Authentication.AsAuthentication(),
+                trello.DeploymentLinking.AsDeploymentLinkingConfiguration(), 
+                trello.EmailNotification.AsEmailNotificationConfiguration());
         }
 
-        private static OctopusApiConfiguration GetOctopusApiConfiguration(OctopusSettingsElement octopus)
+        private static TrelloAuthentication AsAuthentication(this TrelloAuthenticationSettingsElement authentication)
+        {
+            return new TrelloAuthentication(authentication.Key, authentication.Token);
+        }
+
+        private static DeploymentLinkingConfiguration AsDeploymentLinkingConfiguration(this DeploymentLinkingSettingsElement linkingSettings)
+        {
+            return new DeploymentLinkingConfiguration(linkingSettings.BoardName, GetListFromCommaSeparatedSequence(linkingSettings.FilterCardsFromColumns));
+        }
+
+        private static EmailNotificationConfiguration AsEmailNotificationConfiguration(this EmailNotificationSettingsElement emailNotificationSettings)
+        {
+            return new EmailNotificationConfiguration(emailNotificationSettings.BoardName, GetListFromCommaSeparatedSequence(emailNotificationSettings.MonitorCardsFromColumns), emailNotificationSettings.ReportAfterDaysInColumn);
+        }
+
+        private static OctopusApiConfiguration AsOctopusApiConfiguration(this OctopusSettingsElement octopus)
         {
             return new OctopusApiConfiguration(octopus.ServerUri, octopus.ApiKey);
         }
 
-        private static TeamCityApiConfiguration GetTeamCityApiConfiguration(TeamCitySettingsElement teamCity)
+        private static TeamCityApiConfiguration AsTeamCityApiConfiguration(this TeamCitySettingsElement teamCity)
         {
             return new TeamCityApiConfiguration(teamCity.ServerUri);
         }
 
-        private static IDeployUserResolver GetDeployUserResolver(ComplexDeployUserConfigurationSettingsElement complexDeployUserConfiguration)
+        private static IDeployUserResolver AsDeployUserResolver(this ComplexDeployUserConfigurationSettingsElement complexDeployUserConfiguration)
         {
             if (complexDeployUserConfiguration == null)
                 return null;

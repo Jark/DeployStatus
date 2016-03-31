@@ -1,20 +1,19 @@
-using System.Collections.Generic;
+using DeployStatus.Configuration;
 
 namespace DeployStatus.ApiClients
 {
     public class TrelloApiConfiguration
     {
-        public string Key { get; }
-        public string Token { get; }
-        public string BoardName { get; }
-        public IEnumerable<string> FilterCardsFromColumns { get; }
+        public TrelloAuthentication Authentication { get; }
+        public DeploymentLinkingConfiguration DeploymentLinkingConfiguration { get; }
+        public EmailNotificationConfiguration EmailNotificationConfiguration { get; }
 
-        public TrelloApiConfiguration(string key, string token, string boardName, IEnumerable<string> filterCardsFromColumns)
+        public TrelloApiConfiguration(TrelloAuthentication key, DeploymentLinkingConfiguration deploymentLinkingConfiguration,
+            EmailNotificationConfiguration emailNotificationConfiguration)
         {
-            Key = key;
-            Token = token;
-            BoardName = boardName;
-            FilterCardsFromColumns = filterCardsFromColumns;
+            Authentication = key;
+            DeploymentLinkingConfiguration = deploymentLinkingConfiguration;
+            EmailNotificationConfiguration = emailNotificationConfiguration;
         }
     }
 }

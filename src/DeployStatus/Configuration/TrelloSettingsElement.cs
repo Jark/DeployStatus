@@ -4,32 +4,25 @@ namespace DeployStatus.Configuration
 {
     public class TrelloSettingsElement : ConfigurationElement
     {
-        [ConfigurationProperty("Key", IsRequired = true)]
-        public string Key
+        [ConfigurationProperty("Authentication", IsRequired = true)]
+        public TrelloAuthenticationSettingsElement Authentication
         {
-            get { return (string)this["Key"]; }
-            set { this["Key"] = value; }
+            get { return (TrelloAuthenticationSettingsElement)this["Authentication"]; }
+            set { this["Authentication"] = value; }
+        }
+        
+        [ConfigurationProperty("DeploymentLinking", IsRequired = false)]
+        public DeploymentLinkingSettingsElement DeploymentLinking
+        {
+            get { return (DeploymentLinkingSettingsElement)this["DeploymentLinking"]; }
+            set { this["DeploymentLinking"] = value; }
         }
 
-        [ConfigurationProperty("Token", IsRequired = true)]
-        public string Token
+        [ConfigurationProperty("EmailNotification", IsRequired = false)]
+        public EmailNotificationSettingsElement EmailNotification
         {
-            get { return (string)this["Token"]; }
-            set { this["Token"] = value; }
-        }
-
-        [ConfigurationProperty("BoardName", IsRequired = true)]
-        public string BoardName
-        {
-            get { return (string)this["BoardName"]; }
-            set { this["BoardName"] = value; }
-        }
-
-        [ConfigurationProperty("FilterCardsFromColumns", IsRequired = false)]
-        public string FilterCardsFromColumns
-        {
-            get { return (string)this["FilterCardsFromColumns"]; }
-            set { this["FilterCardsFromColumns"] = value; }
+            get { return (EmailNotificationSettingsElement)this["EmailNotification"]; }
+            set { this["EmailNotification"] = value; }
         }
     }
 }

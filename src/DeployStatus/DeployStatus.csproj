@@ -108,10 +108,17 @@
     <Compile Include="ApiClients\TrelloApiConfiguration.cs" />
     <Compile Include="Configuration\ComplexDeployUserConfigurationSettingsElement.cs" />
     <Compile Include="Configuration\ComplexDeployUserResolver.cs" />
+    <Compile Include="Configuration\DeploymentLinkingConfiguration.cs" />
+    <Compile Include="Configuration\DeploymentLinkingSettingsElement.cs" />
     <Compile Include="Configuration\DeployStatusConfiguration.cs" />
+    <Compile Include="Configuration\EmailNotificationConfiguration.cs" />
+    <Compile Include="Configuration\EmailNotificationSettingsElement.cs" />
+    <Compile Include="Configuration\EmailNotificationSettingsSection.cs" />
     <Compile Include="Configuration\IDeployUserResolver.cs" />
     <Compile Include="Configuration\DeployStatusSettingsSection.cs" />
     <Compile Include="Configuration\OctopusSettingsElement.cs" />
+    <Compile Include="Configuration\TrelloAuthentication.cs" />
+    <Compile Include="Configuration\TrelloAuthenticationSettingsElement.cs" />
     <Compile Include="Service\DeployStatusService.cs" />
     <Compile Include="Configuration\DeployStatusSettingsExtensions.cs" />
     <Compile Include="Service\IService.cs" />
