@@ -17,12 +17,18 @@ namespace DeployStatus.Configuration
                 settings.ComplexDeployUserConfiguration.AsDeployUserResolver());
         }
 
-        private static TrelloApiConfiguration AsTrelloApiConfiguration(this TrelloSettingsElement trello)
+        public static TrelloApiConfiguration AsTrelloApiConfiguration(this TrelloSettingsElement trello)
         {
             return new TrelloApiConfiguration(
+                trello.EmailResolver.AsEmailResolver(),
                 trello.Authentication.AsAuthentication(),
                 trello.DeploymentLinking.AsDeploymentLinkingConfiguration(), 
                 trello.EmailNotification.AsEmailNotificationConfiguration());
+        }
+
+        private static TrelloEmailResolver AsEmailResolver(this TrelloEmailResolverSettingsElement emailResolverSettings)
+        {
+            return new TrelloEmailResolver(emailResolverSettings.DomainToAppend);
         }
 
         private static TrelloAuthentication AsAuthentication(this TrelloAuthenticationSettingsElement authentication)

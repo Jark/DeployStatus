@@ -106,6 +106,8 @@
     <Compile Include="ApiClients\DeployStatusInfoClient.cs" />
     <Compile Include="ApiClients\TeamCityApiConfiguration.cs" />
     <Compile Include="ApiClients\TrelloApiConfiguration.cs" />
+    <Compile Include="ApiClients\TrelloEmailResolver.cs" />
+    <Compile Include="ApiClients\TrelloMemberInfo.cs" />
     <Compile Include="Configuration\ComplexDeployUserConfigurationSettingsElement.cs" />
     <Compile Include="Configuration\ComplexDeployUserResolver.cs" />
     <Compile Include="Configuration\DeploymentLinkingConfiguration.cs" />
@@ -114,6 +116,7 @@
     <Compile Include="Configuration\EmailNotificationConfiguration.cs" />
     <Compile Include="Configuration\EmailNotificationSettingsElement.cs" />
     <Compile Include="Configuration\EmailNotificationSettingsSection.cs" />
+    <Compile Include="Configuration\TrelloEmailResolverSettingsElement.cs" />
     <Compile Include="Configuration\IDeployUserResolver.cs" />
     <Compile Include="Configuration\DeployStatusSettingsSection.cs" />
     <Compile Include="Configuration\OctopusSettingsElement.cs" />

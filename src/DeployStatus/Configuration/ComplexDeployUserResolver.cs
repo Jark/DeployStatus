@@ -67,13 +67,13 @@ namespace DeployStatus.Configuration
             return false;
         }
 
-        private bool TryGetFromTrello(IEnumerable<TrelloCardInfo> trelloCards, out string deployerName)
+        private static bool TryGetFromTrello(IEnumerable<TrelloCardInfo> trelloCards, out string deployerName)
         {
             var firstMemberThatMakesSense = trelloCards.SelectMany(x => x.Members).FirstOrDefault();
 
-            if (!string.IsNullOrWhiteSpace(firstMemberThatMakesSense))
+            if (!string.IsNullOrWhiteSpace(firstMemberThatMakesSense?.Name))
             {
-                deployerName = firstMemberThatMakesSense;
+                deployerName = firstMemberThatMakesSense.Name;
                 return true;
             }
 

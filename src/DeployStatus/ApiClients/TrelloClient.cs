@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using DeployStatus.Configuration;
+using log4net;
 using RestSharp;
 using RestSharp.Authenticators;
 
@@ -10,6 +11,7 @@ namespace DeployStatus.ApiClients
     internal class TrelloClient
     {
         private readonly RestClient restClient;
+        private TrelloEmailResolver emailResolver;
         private readonly string deploymentLinkingSearchTemplate;
 
         public TrelloClient(TrelloApiConfiguration configuration)
@@ -17,6 +19,7 @@ namespace DeployStatus.ApiClients
             restClient = new RestClient("https://api.trello.com/1/");
             restClient.Authenticator = GetAuthenticator(configuration.Authentication);
 
+            emailResolver = configuration.EmailResolver;
             deploymentLinkingSearchTemplate = GetDeploymentLinkingSearchTemplate(configuration.DeploymentLinkingConfiguration);
         }
 
@@ -38,14 +41,19 @@ namespace DeployStatus.ApiClients
                 .Distinct()
                 .Select(async x => await ExecuteGetMember(x)));
 
-            var membersById = membersFromServer.ToDictionary(x => x.Id, x => x.FullName);
+            var membersById = membersFromServer.ToDictionary(x => x.Id, x => x);
             var trelloCardInfos = searchResult.Cards.Select(x =>
             {
-                var members = x.IdMembers.Select(y => membersById[y]).ToList();
+                var members = x.IdMembers.Select(y => GetTrelloMemberInfo(membersById[y].FullName)).ToList();
                 return new TrelloCardInfo(x.Id, x.Name, x.Url, members);
             });
 
             return trelloCardInfos.ToList();
+        }
+
+        private TrelloMemberInfo GetTrelloMemberInfo(string fullName)
+        {
+            return new TrelloMemberInfo(fullName, emailResolver.GetEmail(fullName));
         }
 
         private async Task<SearchResult> ExecuteSearchCards(string searchString)
@@ -64,8 +72,9 @@ namespace DeployStatus.ApiClients
         {
             var restRequest = new RestRequest("members/{id}");
             restRequest.AddUrlSegment("id", memberId);
-
-            var result = await restClient.ExecuteGetTaskAsync<Member>(restRequest);
+            restRequest.AddParameter("fields", "fullName");
+            
+            var result = await restClient.ExecuteGetTaskAsync<Member>(restRequest);            
             return result.Data;
         }
 

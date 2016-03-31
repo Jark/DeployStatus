@@ -7,9 +7,9 @@ namespace DeployStatus.ApiClients
         public string Id { get; }
         public string Name { get;  }
         public string Url { get; }
-        public IEnumerable<string> Members { get; }
+        public IEnumerable<TrelloMemberInfo> Members { get; }
 
-        public TrelloCardInfo(string id, string name, string url, IEnumerable<string> members)
+        public TrelloCardInfo(string id, string name, string url, IEnumerable<TrelloMemberInfo> members)
         {
             Id = id;
             Name = name;
