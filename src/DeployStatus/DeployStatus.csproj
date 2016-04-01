@@ -122,6 +122,8 @@
     <Compile Include="Configuration\OctopusSettingsElement.cs" />
     <Compile Include="Configuration\TrelloAuthentication.cs" />
     <Compile Include="Configuration\TrelloAuthenticationSettingsElement.cs" />
+    <Compile Include="EmailNotification\CardsByMember.cs" />
+    <Compile Include="EmailNotification\EmailNotificationService.cs" />
     <Compile Include="Service\DeployStatusService.cs" />
     <Compile Include="Configuration\DeployStatusSettingsExtensions.cs" />
     <Compile Include="Service\IService.cs" />

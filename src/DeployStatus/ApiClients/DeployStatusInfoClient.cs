@@ -46,7 +46,7 @@ namespace DeployStatus.ApiClients
 
             var trelloCards = Enumerable.Empty<TrelloCardInfo>();
             if (!string.IsNullOrWhiteSpace(branchName))
-                trelloCards = await trelloClient.GetCardsContaining(branchName);
+                trelloCards = await trelloClient.GetCardsLinkedToBranch(branchName);
 
             return new DeployStatusInfo(environment, buildInfo, trelloCards, branchName);
         }

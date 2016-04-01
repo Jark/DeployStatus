@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DeployStatus.Configuration;
@@ -7,12 +8,14 @@ using RestSharp;
 using RestSharp.Authenticators;
 
 namespace DeployStatus.ApiClients
-{    
+{
     internal class TrelloClient
     {
         private readonly RestClient restClient;
-        private TrelloEmailResolver emailResolver;
+        private readonly TrelloEmailResolver emailResolver;
         private readonly string deploymentLinkingSearchTemplate;
+        private readonly string emailNotificationSearchString;
+        private readonly int reportAfterDaysInColumn;
 
         public TrelloClient(TrelloApiConfiguration configuration)
         {
@@ -21,6 +24,8 @@ namespace DeployStatus.ApiClients
 
             emailResolver = configuration.EmailResolver;
             deploymentLinkingSearchTemplate = GetDeploymentLinkingSearchTemplate(configuration.DeploymentLinkingConfiguration);
+            emailNotificationSearchString = GetEmailNotificationSearchString(configuration.EmailNotificationConfiguration);
+            reportAfterDaysInColumn = configuration.EmailNotificationConfiguration.ReportAfterDaysInColumn;
         }
 
         private static SimpleAuthenticator GetAuthenticator(TrelloAuthentication trelloAuthentication)
@@ -33,22 +38,39 @@ namespace DeployStatus.ApiClients
             return $"board:\"{deploymentLinkingConfiguration.BoardName}\" is:open {string.Join(" ", deploymentLinkingConfiguration.FilterCardsFromColumns.Select(x => $"-list:{x}"))}" + " {0}";
         }
 
-        public async Task<IEnumerable<TrelloCardInfo>> GetCardsContaining(string searchString)
+
+        private string GetEmailNotificationSearchString(EmailNotificationConfiguration emailNotificationConfiguration)
+        {
+            return $"board:\"{emailNotificationConfiguration.BoardName}\" is:open {string.Join(" ", emailNotificationConfiguration.MonitorCardsFromColumns.Select(x => $"list:{x}"))}";
+        }
+
+        public async Task<IEnumerable<TrelloCardInfo>> GetCardsThatAreInactive()
+        {
+            var cardsInMonitorColumns = await GetCardsContaining(emailNotificationSearchString);
+            return cardsInMonitorColumns.Where(x => x.LastActivity <= DateTime.UtcNow.AddDays(-reportAfterDaysInColumn));
+        }
+
+        public async Task<IEnumerable<TrelloCardInfo>> GetCardsLinkedToBranch(string searchString)
+        {
+            var deploymentLinkingSearchString = string.Format(deploymentLinkingSearchTemplate, searchString);
+            return await GetCardsContaining(deploymentLinkingSearchString);
+        }
+
+        private async Task<IEnumerable<TrelloCardInfo>> GetCardsContaining(string searchString)
         {
             var searchResult = await ExecuteSearchCards(searchString);
-            var membersFromServer = await Task.WhenAll(searchResult.Cards
-                .SelectMany(x => x.IdMembers)
-                .Distinct()
-                .Select(async x => await ExecuteGetMember(x)));
-
-            var membersById = membersFromServer.ToDictionary(x => x.Id, x => x);
             var trelloCardInfos = searchResult.Cards.Select(x =>
             {
-                var members = x.IdMembers.Select(y => GetTrelloMemberInfo(membersById[y].FullName)).ToList();
-                return new TrelloCardInfo(x.Id, x.Name, x.Url, members);
+                var members = x.Members.Select(y => GetTrelloMemberInfo(y.FullName)).ToList();
+                return new TrelloCardInfo(x.Id, x.Name, x.Url, members, GetLastActivity(x), x.List.Name);
             });
 
             return trelloCardInfos.ToList();
+        }
+
+        private static DateTime GetLastActivity(Card x)
+        {
+            return DateTime.Parse(x.DateLastActivity);
         }
 
         private TrelloMemberInfo GetTrelloMemberInfo(string fullName)
@@ -60,21 +82,13 @@ namespace DeployStatus.ApiClients
         {
             var restRequest = new RestRequest("search/");
             restRequest.AddParameter("modelTypes", "cards,members");
-            restRequest.AddParameter("query", string.Format(deploymentLinkingSearchTemplate, searchString));
-            restRequest.AddParameter("cards_limit", 10); // cap at 10 cards for now
-            restRequest.AddParameter("card_fields", "idMembers,url,name");
+            restRequest.AddParameter("query", searchString);
+            restRequest.AddParameter("cards_limit", 100); // cap at 100 cards for now
+            restRequest.AddParameter("card_fields", "url,name,dateLastActivity");
+            restRequest.AddParameter("card_members", "true");
+            restRequest.AddParameter("card_list", "true");
 
             var result = await restClient.ExecuteGetTaskAsync<SearchResult>(restRequest);
-            return result.Data;
-        }
-
-        private async Task<Member> ExecuteGetMember(string memberId)
-        {
-            var restRequest = new RestRequest("members/{id}");
-            restRequest.AddUrlSegment("id", memberId);
-            restRequest.AddParameter("fields", "fullName");
-            
-            var result = await restClient.ExecuteGetTaskAsync<Member>(restRequest);            
             return result.Data;
         }
 
@@ -86,15 +100,30 @@ namespace DeployStatus.ApiClients
         private class Card
         {
             public string Id { get; private set; }
-            public List<string> IdMembers { get; private set; }
+            public List<Member> Members { get; private set; }
             public string Name { get; private set; }
             public string Url { get; private set; }
+            public string DateLastActivity { get; private set; }
+            public List List { get; private set; }
         }
 
         private class Member
         {
             public string Id { get; private set; }
+            public string Username { get; private set; }
             public string FullName { get; private set; }
+            public string Initials { get; private set; }
+            public string AvatarHash { get; private set; }
+        }
+
+        private class List
+        {
+            public string Id { get; private set; }
+            public string Name { get; private set; }
+            public bool Closed { get; private set; }
+            public string IdBoard { get; private set; }
+            public int Pos { get; private set; }
+            public bool Subscribed { get; private set; }
         }
     }
 }
