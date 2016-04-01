@@ -16,6 +16,7 @@ namespace DeployStatus.ApiClients
         private readonly string deploymentLinkingSearchTemplate;
         private readonly string emailNotificationSearchString;
         private readonly int reportAfterDaysInColumn;
+        private readonly string labelSearchTemplate;
 
         public TrelloClient(TrelloApiConfiguration configuration)
         {
@@ -24,6 +25,7 @@ namespace DeployStatus.ApiClients
 
             emailResolver = configuration.EmailResolver;
             deploymentLinkingSearchTemplate = GetDeploymentLinkingSearchTemplate(configuration.DeploymentLinkingConfiguration);
+            labelSearchTemplate = GetLabelSearchTemplate(configuration.DeploymentLinkingConfiguration);
             emailNotificationSearchString = GetEmailNotificationSearchString(configuration.EmailNotificationConfiguration);
             reportAfterDaysInColumn = configuration.EmailNotificationConfiguration.ReportAfterDaysInColumn;
         }
@@ -38,6 +40,10 @@ namespace DeployStatus.ApiClients
             return $"board:\"{deploymentLinkingConfiguration.BoardName}\" is:open {string.Join(" ", deploymentLinkingConfiguration.FilterCardsFromColumns.Select(x => $"-list:{x}"))}" + " {0}";
         }
 
+        private static string GetLabelSearchTemplate(DeploymentLinkingConfiguration deploymentLinkingConfiguration)
+        {
+            return $"board:\"{deploymentLinkingConfiguration.BoardName}\" is:open {string.Join(" ", deploymentLinkingConfiguration.FilterCardsFromColumns.Select(x => $"-list:{x}"))}" + " label:\"{0}\"";
+        }
 
         private string GetEmailNotificationSearchString(EmailNotificationConfiguration emailNotificationConfiguration)
         {
@@ -53,6 +59,12 @@ namespace DeployStatus.ApiClients
         public async Task<IEnumerable<TrelloCardInfo>> GetCardsLinkedToBranch(string searchString)
         {
             var deploymentLinkingSearchString = string.Format(deploymentLinkingSearchTemplate, searchString);
+            return await GetCardsContaining(deploymentLinkingSearchString);
+        }
+
+        public async Task<IEnumerable<TrelloCardInfo>> GetCardsLinkedToLabel(string label)
+        {
+            var deploymentLinkingSearchString = string.Format(labelSearchTemplate, label);
             return await GetCardsContaining(deploymentLinkingSearchString);
         }
 

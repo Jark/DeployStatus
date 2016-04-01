@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DeployStatus.Configuration;
+using log4net;
 
 namespace DeployStatus.ApiClients
 {
@@ -11,6 +12,7 @@ namespace DeployStatus.ApiClients
         private readonly OctopusClient octopusClient;
         private readonly TrelloClient trelloClient;
         private readonly TeamCityClient teamCityClient;
+        private readonly ILog log;
 
         // this class should not "own" the resolver, but this does tightly couple it to the client initalisation so on a higher level we don't risk null exceptions.
         public IDeployUserResolver DeployUserResolver { get; }
@@ -21,6 +23,8 @@ namespace DeployStatus.ApiClients
             trelloClient = new TrelloClient(configuration.Trello);
             teamCityClient = new TeamCityClient(configuration.TeamCity);
             DeployUserResolver = configuration.DeployUserResolver;
+
+            log = LogManager.GetLogger(typeof (DeployStatusInfoClient));
         }
 
         public async Task<IEnumerable<DeployStatusInfo>> GetDeployStatus()
@@ -35,7 +39,7 @@ namespace DeployStatus.ApiClients
             return await Task.WhenAll(tasks);
         }
 
-        private static async Task<DeployStatusInfo> GetDeployStatusInfo(TeamCityClient teamCityClient, OctopusEnvironmentInfo environment,
+        private async Task<DeployStatusInfo> GetDeployStatusInfo(TeamCityClient teamCityClient, OctopusEnvironmentInfo environment,
             TrelloClient trelloClient)
         {
             var buildInfo = (await teamCityClient.GetBuildsContaining(new Version(environment.ReleaseVersion))).ToList();
@@ -44,11 +48,13 @@ namespace DeployStatus.ApiClients
             if (string.IsNullOrWhiteSpace(branchName) && buildInfo.Any())
                 branchName = buildInfo.First(x => !string.IsNullOrWhiteSpace(x.BranchName)).BranchName;
 
-            var trelloCards = Enumerable.Empty<TrelloCardInfo>();
+            var branchRelatedTrelloCards = Enumerable.Empty<TrelloCardInfo>();
             if (!string.IsNullOrWhiteSpace(branchName))
-                trelloCards = await trelloClient.GetCardsLinkedToBranch(branchName);
+                branchRelatedTrelloCards = await trelloClient.GetCardsLinkedToBranch(branchName);
 
-            return new DeployStatusInfo(environment, buildInfo, trelloCards, branchName);
+            var labelRelatedCards = await trelloClient.GetCardsLinkedToLabel(environment.Name);
+
+            return new DeployStatusInfo(environment, buildInfo, branchRelatedTrelloCards, labelRelatedCards, branchName);
         }
 
         private static string GetBranchNameFromReleaseNotes(string releaseNotes)

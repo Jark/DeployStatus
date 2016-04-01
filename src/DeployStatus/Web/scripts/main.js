@@ -22,7 +22,12 @@ $(document).ready(function () {
 		    key: function (data) {
 		        return ko.utils.unwrapObservable(data.Id);
 		    },
-            'Trellos': {
+            'BranchRelatedTrellos': {
+                key: function (data) {
+                    return ko.utils.unwrapObservable(data.Id);
+                }
+            },
+            'EnvironmentTaggedTrellos': {
                 key: function (data) {
                     return ko.utils.unwrapObservable(data.Id);
                 }

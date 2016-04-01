@@ -14,11 +14,15 @@ namespace DeployStatus.SignalR
         public string Branch { get; }
         public string OctopusDeployLink { get; }
         public string DeployedBy { get; }
-        public IEnumerable<Trello> Trellos { get; }
+        public IEnumerable<Trello> BranchRelatedTrellos { get; }
+        public IEnumerable<Trello> EnvironmentTaggedTrellos { get; }
         public IEnumerable<TeamCityBuild> Builds { get; }
 
         public Environment(string id, string name, string version, DateTimeOffset started, TaskState state, 
-            string branch, string octopusDeployLink, string deployedBy, IEnumerable<Trello> trellos, IEnumerable<TeamCityBuild> builds)
+            string branch, string octopusDeployLink, string deployedBy, 
+            IEnumerable<Trello> branchRelatedTrellos, 
+            IEnumerable<Trello> environmentTaggedTrellos,
+            IEnumerable<TeamCityBuild> builds)
         {
             Id = id;
             Name = name;
@@ -28,7 +32,8 @@ namespace DeployStatus.SignalR
             Branch = branch;
             OctopusDeployLink = octopusDeployLink;
             DeployedBy = deployedBy;
-            Trellos = trellos;
+            BranchRelatedTrellos = branchRelatedTrellos;
+            EnvironmentTaggedTrellos = environmentTaggedTrellos;
             Builds = builds;
         }
     }

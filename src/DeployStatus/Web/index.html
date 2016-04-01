@@ -68,15 +68,21 @@
         </div>
         <div class="extra content">
             <div class="description">
-                Deployed by: <span data-bind="text: DeployedBy"></span>
+                Deployed by: <span data-bind="text: DeployedBy"></span><br/>
+                <!-- ko if: EnvironmentTaggedTrellos().length > 0 -->
+                <span style="color: red; font-weight: bold;">Don't deploy to this environment.</span>
+                <!-- /ko -->
+                <!-- ko if: EnvironmentTaggedTrellos().length == 0 -->
+                <span style="color: green; font-weight: bold;">It's ok to deploy to this environment.</span>
+                <!-- /ko -->
             </div>
         </div>
         <div class="extra content">
             <div class="ui dropdown">
-                <div class="text">Trellos (<span data-bind="text: Trellos().length"></span>)
+                <div class="text">Tagged Trellos (<span data-bind="text: EnvironmentTaggedTrellos().length"></span>)
                 </div>
                 <i class="dropdown icon"></i>
-                <div class="menu" data-bind="foreach: Trellos">
+                <div class="menu" data-bind="foreach: EnvironmentTaggedTrellos">
                     <div class="item">
                         <i class="trello icon"></i>
                         <a class="content" target="_blank" data-bind="text: Name, attr: { href: Link }"></a>

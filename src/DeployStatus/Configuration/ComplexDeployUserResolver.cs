@@ -22,7 +22,8 @@ namespace DeployStatus.Configuration
             string deployerName;
             if (TryGetFromOctopus(deployStatusInfo.Environment, out deployerName) ||
                 TryGetFromTeamCity(deployStatusInfo.BuildInfo, out deployerName) ||
-                TryGetFromTrello(deployStatusInfo.TrelloCards, out deployerName))
+                TryGetFromTrello(deployStatusInfo.BranchRelatedTrellos, out deployerName) ||
+                TryGetFromTrello(deployStatusInfo.EnvironmentTaggedTrellos, out deployerName))
                 return deployerName;
 
             return deployStatusInfo.Environment.DisplayName;

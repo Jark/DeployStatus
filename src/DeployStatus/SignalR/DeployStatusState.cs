@@ -84,7 +84,9 @@ namespace DeployStatus.SignalR
                         new Environment(x.Environment.Id, x.Environment.Name, x.Environment.ReleaseVersion,
                             x.Environment.StartTime.GetValueOrDefault(), 
                             x.Environment.State, x.BranchName, x.Environment.AbsoluteDeployLink, 
-                            GetNormalizedName(deployUserResolver.GetDeployer(x)), x.TrelloCards.Select(GetTrelloCard).ToList(), 
+                            GetNormalizedName(deployUserResolver.GetDeployer(x)), 
+                            x.BranchRelatedTrellos.Select(GetTrelloCard).ToList(),
+                            x.EnvironmentTaggedTrellos.Select(GetTrelloCard).ToList(),
                             x.BuildInfo.Select(GetBuildInfo))).ToList();
         }
 
