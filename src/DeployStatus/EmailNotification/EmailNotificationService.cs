@@ -53,7 +53,11 @@ namespace DeployStatus.EmailNotification
         private TimeSpan GetDueTime()
         {
             var now = DateTime.Now;
-            var pollDay = now.TimeOfDay <= pollAtTime ? now.Date : now.Date.AddDays(1);
+
+            // to get around timer inaccuracy
+            var timeOfDay = now.TimeOfDay.Add(TimeSpan.FromMinutes(5));
+
+            var pollDay = timeOfDay <= pollAtTime ? now.Date : now.Date.AddDays(1);
             var dueTime = (pollDay.Add(pollAtTime)) - now;
             return dueTime;
         }
