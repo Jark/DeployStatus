@@ -121,10 +121,10 @@ namespace DeployStatus.EmailNotification
             var stringBuilder = new StringBuilder();
             stringBuilder.AppendLine("<html>\r\n<body>");
             stringBuilder.AppendLine($"<p>Hi {member.Member.Name},</p>");
-            var cardsByColumn = member.Cards.GroupBy(x => x.ListName);
+            var cardsByColumn = member.Cards.GroupBy(x => x.ListName).ToList();
             foreach (var column in cardsByColumn)
             {
-                stringBuilder.AppendLine($"<p>The following cards have been in the {column.Key} column for over {reportAfterDaysInColumn} days and it might be a good idea to deploy them:<br/><ul>");
+                stringBuilder.AppendLine($"<p>The following card{(cardsByColumn.Count() > 1 ? "s have" : " has")} been in the {column.Key} column for over {reportAfterDaysInColumn} days and it might be a good idea to deploy them:<br/><ul>");
                 foreach (var card in column)
                 {
                     stringBuilder.AppendLine($"<li><a href=\"{card.Url}\">{card.Name}</a> - last activity was at: {card.LastActivity}</li>");
