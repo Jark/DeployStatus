@@ -17,6 +17,7 @@ namespace DeployStatus.ApiClients
         private readonly string emailNotificationSearchString;
         private readonly int reportAfterDaysInColumn;
         private readonly string labelSearchTemplate;
+        private readonly ILog log;
 
         public TrelloClient(TrelloApiConfiguration configuration)
         {
@@ -28,6 +29,8 @@ namespace DeployStatus.ApiClients
             labelSearchTemplate = GetLabelSearchTemplate(configuration.DeploymentLinkingConfiguration);
             emailNotificationSearchString = GetEmailNotificationSearchString(configuration.EmailNotificationConfiguration);
             reportAfterDaysInColumn = configuration.EmailNotificationConfiguration.ReportAfterDaysInColumn;
+
+            log = LogManager.GetLogger(typeof (TrelloClient));
         }
 
         private static SimpleAuthenticator GetAuthenticator(TrelloAuthentication trelloAuthentication)
@@ -101,6 +104,11 @@ namespace DeployStatus.ApiClients
             restRequest.AddParameter("card_list", "true");
 
             var result = await restClient.ExecuteGetTaskAsync<SearchResult>(restRequest);
+            if (result.ResponseStatus != ResponseStatus.Completed)
+            {
+                log.Warn($"Did not receive a valid response from server using searchstring: {searchString}, received instead: {result.Content}. Retrying.");
+                result = await restClient.ExecuteGetTaskAsync<SearchResult>(restRequest);
+            }
             return result.Data;
         }
 

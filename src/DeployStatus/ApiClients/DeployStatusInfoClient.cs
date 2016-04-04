@@ -29,13 +29,17 @@ namespace DeployStatus.ApiClients
 
         public async Task<IEnumerable<DeployStatusInfo>> GetDeployStatus()
         {
+            log.Info("Retrieving environments...");
             var environments = octopusClient.GetEnvironments().ToList();
+
+            log.Info("Queuieng and starting getting details tasks...");
             var tasks = new List<Task<DeployStatusInfo>>();
             foreach (var environment in environments)
             {
                 tasks.Add(GetDeployStatusInfo(teamCityClient, environment, trelloClient));
             }
 
+            log.Info("Waiting for tasks to complete.");
             return await Task.WhenAll(tasks);
         }
 
