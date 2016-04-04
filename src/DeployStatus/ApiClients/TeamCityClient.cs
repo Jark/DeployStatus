@@ -14,6 +14,9 @@ namespace DeployStatus.ApiClients
         public TeamCityClient(TeamCityApiConfiguration teamCityApiConfiguration)
         {
             restClient = new RestClient(teamCityApiConfiguration.ServerUri);
+
+            restClient.ReadWriteTimeout = 60000;
+            restClient.Timeout = 60000;
         }
 
         public async Task<IEnumerable<TeamCityBuildInfo>> GetBuildsContaining(Version version)

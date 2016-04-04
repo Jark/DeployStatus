@@ -24,6 +24,9 @@ namespace DeployStatus.ApiClients
             restClient = new RestClient("https://api.trello.com/1/");
             restClient.Authenticator = GetAuthenticator(configuration.Authentication);
 
+            restClient.ReadWriteTimeout = 60000;
+            restClient.Timeout = 60000;
+
             emailResolver = configuration.EmailResolver;
             deploymentLinkingSearchTemplate = GetDeploymentLinkingSearchTemplate(configuration.DeploymentLinkingConfiguration);
             labelSearchTemplate = GetLabelSearchTemplate(configuration.DeploymentLinkingConfiguration);
