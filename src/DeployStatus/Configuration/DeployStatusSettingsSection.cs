@@ -21,6 +21,13 @@ namespace DeployStatus.Configuration
             set { this["WebAppUrl"] = value; }
         }
 
+        [ConfigurationProperty("PerformEmailNotificationsCheckOnStartup", IsRequired = false, DefaultValue = false)]
+        public bool PerformEmailNotificationsCheckOnStartup
+        {
+            get { return (bool) this["PerformEmailNotificationsCheckOnStartup"]; }
+            set { this["PerformEmailNotificationsCheckOnStartup"] = value; }
+        }
+
         [ConfigurationProperty("Trello")]
         public TrelloSettingsElement Trello
         {

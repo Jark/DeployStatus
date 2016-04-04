@@ -11,6 +11,7 @@ namespace DeployStatus.Configuration
             return new DeployStatusConfiguration(
                 settings.Name,
                 settings.WebAppUrl,
+                settings.PerformEmailNotificationsCheckOnStartup,
                 settings.Trello.AsTrelloApiConfiguration(),
                 settings.Octopus.AsOctopusApiConfiguration(),
                 settings.TeamCity.AsTeamCityApiConfiguration(),

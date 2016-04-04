@@ -21,12 +21,16 @@ namespace DeployStatus.EmailNotification
         private readonly TimeSpan pollAtTime;
         private readonly int reportAfterDaysInColumn;
         private readonly string deployEmailAddress;
+        private readonly bool performEmailNotificationCheckOnStartup;
 
         public EmailNotificationService()
         {
             log = LogManager.GetLogger(typeof (EmailNotificationService));
             smtpClient = new SmtpClient();
-            var trelloApiConfiguration = DeployStatusSettingsSection.Settings.Trello.AsTrelloApiConfiguration();
+
+            var deployStatusConfiguration = DeployStatusSettingsSection.Settings.AsDeployConfiguration();
+            performEmailNotificationCheckOnStartup = deployStatusConfiguration.PerformEmailNotificationsCheckOnStartup;
+            var trelloApiConfiguration = deployStatusConfiguration.Trello;
             reportAfterDaysInColumn = trelloApiConfiguration.EmailNotificationConfiguration.ReportAfterDaysInColumn;
             trelloClient = new TrelloClient(trelloApiConfiguration);
             deployEmailAddress = trelloApiConfiguration.EmailResolver.GetEmail("deployalready");
@@ -39,7 +43,11 @@ namespace DeployStatus.EmailNotification
         public void Start()
         {
             log.Info("Email notification service started.");
-            ScheduleRetryIn(GetDueTime());
+            log.Info($"PerformEmailNotificationCheckOnStartup = {performEmailNotificationCheckOnStartup}");
+            if (performEmailNotificationCheckOnStartup) 
+                ScheduleRetryIn(TimeSpan.FromMilliseconds(0));
+            else
+                ScheduleRetryIn(GetDueTime());
         }
 
         private TimeSpan GetDueTime()
