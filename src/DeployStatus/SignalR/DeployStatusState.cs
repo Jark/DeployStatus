@@ -16,9 +16,7 @@ namespace DeployStatus.SignalR
         public static readonly Lazy<DeployStatusState> Instance =
             new Lazy<DeployStatusState>( () => new DeployStatusState(GlobalHost.ConnectionManager.GetHubContext<DeployStatusHub, IDeployStatusClient>()));
 
-        private readonly object locker = new object();
-
-        private DeploySystemStatus deploySystemStatus;
+        private DeploySystemStatus deploySystemStatus = new DeploySystemStatus("Starting system...", DateTime.UtcNow, Enumerable.Empty<Environment>());
         private readonly IHubContext<IDeployStatusClient> context;
         private readonly Timer timer;
         private DeployStatusInfoClient deployStatusInfoClient;
@@ -52,11 +50,10 @@ namespace DeployStatus.SignalR
                 log.Info("Pushing out update via SignalR.");
                 var newEnvironments = GetEnvironments(status, deployStatusInfoClient.DeployUserResolver);
                 var newDeploySystemStatus = new DeploySystemStatus(deployStatusConfiguration.Name, DateTime.UtcNow, newEnvironments);
-                lock (locker)
-                {
-                    deploySystemStatus = newDeploySystemStatus;
-                }
-                context.Clients.All.DeploySystemStatusChanged(deploySystemStatus);
+
+                Interlocked.Exchange(ref deploySystemStatus, newDeploySystemStatus);
+
+                context.Clients.All.DeploySystemStatusChanged(newDeploySystemStatus);
                 log.Info("SignalR update pushed.");
             }
             catch (Exception ex)
@@ -70,10 +67,7 @@ namespace DeployStatus.SignalR
 
         public DeploySystemStatus GetDeploySystemStatus()
         {
-            lock (locker)
-            {
-                return deploySystemStatus ?? new DeploySystemStatus("Starting system...", DateTime.UtcNow, Enumerable.Empty<Environment>());
-            }
+             return deploySystemStatus;
         }
 
         private static IList<Environment> GetEnvironments(IEnumerable<DeployStatusInfo> status, IDeployUserResolver deployUserResolver)
