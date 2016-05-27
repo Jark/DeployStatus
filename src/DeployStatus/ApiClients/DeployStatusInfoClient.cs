@@ -40,7 +40,13 @@ namespace DeployStatus.ApiClients
             }
 
             log.Info("Waiting for tasks to complete.");
-            return await Task.WhenAll(tasks);
+
+            await Task.WhenAny(Task.WhenAll(tasks), Task.Delay(TimeSpan.FromMinutes(15)));
+
+            if (tasks.All(x => x.IsCompleted))
+                return await Task.WhenAll(tasks);
+
+            throw new Exception("Could not get the deploy statuses in time.");            
         }
 
         private async Task<DeployStatusInfo> GetDeployStatusInfo(TeamCityClient teamCityClient, OctopusEnvironmentInfo environment,
