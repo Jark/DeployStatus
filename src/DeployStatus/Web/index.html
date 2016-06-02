@@ -27,6 +27,8 @@
         <div class="sub header">Last server update: <span data-bind="dateString: LastUpdated, datePattern: 'MMMM Do YYYY, H:mm:ss a'"></span></div>
     </h1>
 </div>
+<label for="sort">Sort</label><select id="sort" data-bind="options: sortFunctions, optionsText: 'name', value: selectedSortFunction">
+</select>
 <div class="ui container four cards" data-bind="foreach: Environments">
     <div class="card">
         <div class="content">

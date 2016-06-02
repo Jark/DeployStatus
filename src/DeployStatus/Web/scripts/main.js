@@ -42,6 +42,33 @@ $(document).ready(function () {
 	    self.LastUpdated = ko.observable("never");
 	    self.Environments = ko.mapping.fromJS([], mapping);
 
+	    self.sortFunctions = ko.observableArray([
+	        {
+	            name: "Deployable",
+	            fn: function(a, b) {
+	                return a.EnvironmentTaggedTrellos().length < b.EnvironmentTaggedTrellos().length ? -1 : 1;
+	            }
+	        },
+	        {
+	            name: "Name",
+	            fn: function(a, b) {
+	                return a.Name() < b.Name() ? -1 : 1;
+	            }
+	        }
+	    ]);
+	    self.selectedSortFunction = ko.observable(self.sortFunctions()[0]);
+	    self.sortedEnvironments = ko.computed(function() {
+	        var records = ko.observableArray(self.Environments());
+	        var sortFunction = self.selectedSortFunction();
+            if(sortFunction)
+                records.sort(sortFunction);
+	        return records();
+	    }).extend({ throttle: 5 });
+
+        self.sort = function() {
+            this.Environments.sort(self.selectedSortFunction().fn);
+        }
+
 	    var updateEnvironments = function (environments) {
 	        if (environments.length === 0)
 	            return; // keep old state on server restarts
