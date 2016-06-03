@@ -24,6 +24,12 @@ namespace DeployStatus.ApiClients
             foreach (var dashboardItemResource in dashBoardResourceResult.Items)
             {
                 var environment = dashBoardResourceResult.Environments.First(x => x.Id == dashboardItemResource.EnvironmentId);
+
+                var machines = repository.Machines.FindMany(x => x.EnvironmentIds.Contains(environment.Id));
+
+                if (machines.Any(x => x.IsDisabled))
+                    continue;
+
                 var release = repository.Releases.Get(dashboardItemResource.ReleaseId);
                 var task = repository.Tasks.Get(dashboardItemResource.TaskId);
                 var events = repository.Events.List(regardingDocumentId: dashboardItemResource.DeploymentId);
