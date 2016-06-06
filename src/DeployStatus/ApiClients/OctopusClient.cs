@@ -26,10 +26,6 @@ namespace DeployStatus.ApiClients
                 var environment = dashBoardResourceResult.Environments.First(x => x.Id == dashboardItemResource.EnvironmentId);
 
                 var machines = repository.Machines.FindMany(x => x.EnvironmentIds.Contains(environment.Id));
-
-                if (machines.Any(x => x.IsDisabled))
-                    continue;
-
                 var release = repository.Releases.Get(dashboardItemResource.ReleaseId);
                 var task = repository.Tasks.Get(dashboardItemResource.TaskId);
                 var events = repository.Events.List(regardingDocumentId: dashboardItemResource.DeploymentId);
@@ -37,7 +33,10 @@ namespace DeployStatus.ApiClients
                 var user = repository.Users.Get(deploymentQueuedByUser);
 
                 yield return
-                    new OctopusEnvironmentInfo(environment.Id, environment.Name, task.StartTime, task.Duration, task.ErrorMessage,
+                    new OctopusEnvironmentInfo(
+                        environment.Id, environment.Name,
+                        machines,
+                        task.StartTime, task.Duration, task.ErrorMessage,
                         task.State, release.Version, release.ReleaseNotes, user?.DisplayName, user?.Username,
                         new Uri(serverUri, task.Link("Web")).ToString());
             }

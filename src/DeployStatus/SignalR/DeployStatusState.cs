@@ -75,10 +75,12 @@ namespace DeployStatus.SignalR
             return
                 status.Select(
                     x =>
-                        new Environment(x.Environment.Id, x.Environment.Name, x.Environment.ReleaseVersion,
+                        new Environment(
+                            x.Environment.Id, x.Environment.Name, x.Environment.ReleaseVersion,
                             x.Environment.StartTime.GetValueOrDefault(), 
                             x.Environment.State, x.BranchName, x.Environment.AbsoluteDeployLink, 
                             GetNormalizedName(deployUserResolver.GetDeployer(x)), 
+                            x.Environment.Machines.Any(y => y.IsDisabled),
                             x.BranchRelatedTrellos.Select(GetTrelloCard).ToList(),
                             x.EnvironmentTaggedTrellos.Select(GetTrelloCard).ToList(),
                             x.BuildInfo.Select(GetBuildInfo))).ToList();
