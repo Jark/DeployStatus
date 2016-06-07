@@ -32,7 +32,7 @@ namespace DeployStatus.ApiClients
             log.Info("Retrieving environments...");
             var environments = octopusClient.GetEnvironments().ToList();
 
-            log.Info("Queuieng and starting getting details tasks...");
+            log.Info("Queueing and starting getting details tasks...");
             var tasks = new List<Task<DeployStatusInfo>>();
             foreach (var environment in environments)
             {

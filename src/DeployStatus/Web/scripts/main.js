@@ -14,6 +14,21 @@ ko.bindingHandlers.dateString = {
     }
 }
 
+var Filter = function(name, fn) {
+    var self = this;
+    self.name = name;
+    self.fn = fn;
+    self.active = ko.observable(false);
+    self.displayName = ko.computed(function() {
+        return self.active()
+            ? "Show " + self.name
+            : "Hide " + self.name;
+    });
+    self.toggle = function() {
+        self.active(!self.active());
+    };
+};
+
 $(document).ready(function () {
 	var ViewModel = function() {
 		var self = this;
@@ -41,6 +56,46 @@ $(document).ready(function () {
 		self.Name = ko.observable("Contacting server...");
 	    self.LastUpdated = ko.observable("never");
 	    self.Environments = ko.mapping.fromJS([], mapping);
+
+	    var nameSort = function(a, b) {
+	        return a.Name() < b.Name() ? -1 : 1;
+	    };
+
+	    self.sortFunctions = ko.observableArray([
+	        {
+	            name: "Is Deployable",
+	            fn: function(a, b) {
+	                var firstLength = a.EnvironmentTaggedTrellos().length;
+	                var secondLength = b.EnvironmentTaggedTrellos().length;
+	                if (firstLength === secondLength)
+	                    return nameSort(a, b);
+	                return firstLength < secondLength ? -1 : 1;
+	            }
+	        },
+	        {
+	            name: "Name",
+	            fn: nameSort
+	        }
+	    ]);
+	    self.sortFn = ko.observable(self.sortFunctions()[0]);
+
+	    self.filters = ko.observableArray([
+	        new Filter("Disabled", function (environment) {
+	            return environment.IsDisabled() === false;
+	        })
+	    ]);
+	    
+	    self.sortedEnvironments = ko.computed(function() {
+            var environments = self.Environments();
+            var sortFn = self.sortFn();
+	        var filters = self.filters();
+            var filterFns = filters.filter(function (item){return item.active() === true});
+            filterFns.every(function (item) {
+                environments = environments.filter(item.fn);
+            });
+            var sorted = environments.sort(sortFn.fn);
+            return sorted;
+	    }, self);
 
 	    var updateEnvironments = function (environments) {
 	        if (environments.length === 0)
