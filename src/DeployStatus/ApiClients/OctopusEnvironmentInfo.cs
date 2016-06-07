@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Octopus.Client.Model;
 
 namespace DeployStatus.ApiClients
@@ -7,6 +8,7 @@ namespace DeployStatus.ApiClients
     {
         public string Id { get; }
         public string Name { get; }
+        public List<MachineResource> Machines { get; }
         public DateTimeOffset? StartTime { get; }
         public string Duration { get; }
         public string ErrorMessage { get; }
@@ -17,10 +19,14 @@ namespace DeployStatus.ApiClients
         public string Username { get; }
         public string AbsoluteDeployLink { get; }
 
-        public OctopusEnvironmentInfo(string id, string name, DateTimeOffset? startTime, string duration, string errorMessage, TaskState state, string releaseVersion, string releaseNotes, string displayName, string username, string absoluteDeployLink)
+        public OctopusEnvironmentInfo(
+            string id, string name, List<MachineResource> machines, DateTimeOffset? startTime, string duration,
+            string errorMessage, TaskState state, string releaseVersion, string releaseNotes, string displayName,
+            string username, string absoluteDeployLink)
         {
             Id = id;
             Name = name;
+            Machines = machines;
             StartTime = startTime;
             Duration = duration;
             ErrorMessage = errorMessage;

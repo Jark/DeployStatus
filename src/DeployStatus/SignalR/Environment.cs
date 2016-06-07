@@ -17,9 +17,12 @@ namespace DeployStatus.SignalR
         public IEnumerable<Trello> BranchRelatedTrellos { get; }
         public IEnumerable<Trello> EnvironmentTaggedTrellos { get; }
         public IEnumerable<TeamCityBuild> Builds { get; }
+        public bool IsDisabled { get; }
 
-        public Environment(string id, string name, string version, DateTimeOffset started, TaskState state, 
+        public Environment(
+            string id, string name, string version, DateTimeOffset started, TaskState state, 
             string branch, string octopusDeployLink, string deployedBy, 
+            bool isDisabled,
             IEnumerable<Trello> branchRelatedTrellos, 
             IEnumerable<Trello> environmentTaggedTrellos,
             IEnumerable<TeamCityBuild> builds)
@@ -32,6 +35,7 @@ namespace DeployStatus.SignalR
             Branch = branch;
             OctopusDeployLink = octopusDeployLink;
             DeployedBy = deployedBy;
+            IsDisabled = isDisabled;
             BranchRelatedTrellos = branchRelatedTrellos;
             EnvironmentTaggedTrellos = environmentTaggedTrellos;
             Builds = builds;

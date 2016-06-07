@@ -12,23 +12,34 @@
     <script src="scripts/moment.min.js"></script>      
     <script src="semantic/semantic.min.js"></script> 
     <script src="scripts/main.js"></script>
-    <script src="signalr/hubs"></script>   
+    <script src="signalr/hubs"></script>
     <style type="text/css">
-    .container {
-      padding: 2em 0em;
-    }
+        .container.tall {
+          padding: 2em 0em;
+        }
     </style>
 </head>
 <body>
 
-<div class="ui container">
+<div class="ui container tall">
     <h1 class="ui dividing header">
         <span data-bind="text: Name"></span>
         <div class="sub header">Last server update: <span data-bind="dateString: LastUpdated, datePattern: 'MMMM Do YYYY, H:mm:ss a'"></span></div>
     </h1>
 </div>
-<div class="ui container four cards" data-bind="foreach: Environments">
-    <div class="card">
+<div class="ui container">
+    Sort by: <span data-bind="foreach: sortFunctions">
+        <button data-bind="text: name, click: $parent.sortFn"></button>
+    </span>
+    |
+    <span data-bind="foreach: filters">
+        <button data-bind="text: displayName, click: toggle"></button>
+    </span>
+</div>
+<div class="ui container tall four cards" data-bind="foreach: sortedEnvironments">
+    <div class="card" data-bind="
+        style: { opacity: IsDisabled() ? 0.5 : 1 }, 
+        attr: { title: IsDisabled() ? 'This Octopus Environment contains a disabled machine' : '' }">
         <div class="content">
             <h4 class="ui header">
                 <span data-bind="text: Name"></span>
@@ -49,16 +60,17 @@
                     Cancelling = 8,
                     }
                     -->
-
-                    <!-- ko if: State() === 2 -->
-                    <i class="blue spinner loading circular inverted icon rounded"></i> <!-- Executing -->
-                    <!-- /ko -->
-                    <!-- ko if: State() === 3 -->
-                    <i class="red warning bordered large inverted icon rounded"></i> <!-- Failed -->
-                    <!-- /ko -->
-                    <!-- ko if: State() === 6 -->
-                    <i class="green check bordered large inverted icon rounded"></i> <!-- Success -->
-                    <!-- /ko -->
+                    <a target="_blank" data-bind="attr: { href: OctopusDeployLink }">
+                        <!-- ko if: State() === 2 -->
+                        <i class="blue spinner loading circular inverted icon rounded"></i> <!-- Executing -->
+                        <!-- /ko -->
+                        <!-- ko if: State() === 3 -->
+                        <i class="red warning bordered large inverted icon rounded"></i> <!-- Failed -->
+                        <!-- /ko -->
+                        <!-- ko if: State() === 6 -->
+                        <i class="green check bordered large inverted icon rounded"></i> <!-- Success -->
+                        <!-- /ko -->
+                    </a>
                     <div class="content">
                         <a target="_blank" data-bind="text: Version, attr: { href: OctopusDeployLink }"></a>
                         <div class="sub header" data-bind="dateString: Started, datePattern: 'MMMM Do YYYY'"></div>
