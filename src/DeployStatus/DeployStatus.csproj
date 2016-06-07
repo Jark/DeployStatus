@@ -104,6 +104,7 @@
     <Compile Include="ApiClients\OctopusApiConfiguration.cs" />
     <Compile Include="ApiClients\OctopusEnvironmentInfo.cs" />
     <Compile Include="ApiClients\DeployStatusInfoClient.cs" />
+    <Compile Include="ApiClients\OctopusMachineInfo.cs" />
     <Compile Include="ApiClients\TeamCityApiConfiguration.cs" />
     <Compile Include="ApiClients\TrelloApiConfiguration.cs" />
     <Compile Include="ApiClients\TrelloEmailResolver.cs" />

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Octopus.Client;
+using Octopus.Client.Model;
 
 namespace DeployStatus.ApiClients
 {
@@ -25,7 +26,7 @@ namespace DeployStatus.ApiClients
             {
                 var environment = dashBoardResourceResult.Environments.First(x => x.Id == dashboardItemResource.EnvironmentId);
 
-                var machines = repository.Machines.FindMany(x => x.EnvironmentIds.Contains(environment.Id));
+                var machines = repository.Machines.FindMany(x => x.EnvironmentIds.Contains(environment.Id)).Select(Convert).ToArray();
                 var release = repository.Releases.Get(dashboardItemResource.ReleaseId);
                 var task = repository.Tasks.Get(dashboardItemResource.TaskId);
                 var events = repository.Events.List(regardingDocumentId: dashboardItemResource.DeploymentId);
@@ -40,6 +41,11 @@ namespace DeployStatus.ApiClients
                         task.State, release.Version, release.ReleaseNotes, user?.DisplayName, user?.Username,
                         new Uri(serverUri, task.Link("Web")).ToString());
             }
+        }
+
+        private static OctopusMachineInfo Convert(MachineResource machine)
+        {
+            return new OctopusMachineInfo(machine.Id, machine.Name, machine.IsDisabled);
         }
     }
 }

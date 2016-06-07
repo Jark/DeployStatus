@@ -8,7 +8,7 @@ namespace DeployStatus.ApiClients
     {
         public string Id { get; }
         public string Name { get; }
-        public List<MachineResource> Machines { get; }
+        public IReadOnlyCollection<OctopusMachineInfo> Machines { get; }
         public DateTimeOffset? StartTime { get; }
         public string Duration { get; }
         public string ErrorMessage { get; }
@@ -20,7 +20,7 @@ namespace DeployStatus.ApiClients
         public string AbsoluteDeployLink { get; }
 
         public OctopusEnvironmentInfo(
-            string id, string name, List<MachineResource> machines, DateTimeOffset? startTime, string duration,
+            string id, string name, IReadOnlyCollection<OctopusMachineInfo> machines, DateTimeOffset? startTime, string duration,
             string errorMessage, TaskState state, string releaseVersion, string releaseNotes, string displayName,
             string username, string absoluteDeployLink)
         {
