@@ -22,24 +22,29 @@
 <body>
 
 <div class="ui container tall">
-    <h1 class="ui dividing header">
-        <span data-bind="text: Name"></span>
+    <h1 class="ui header">
+        <div class="ui basic buttons right floated" style="margin-top: 10px;">
+            <div class="ui  dropdown labeled icon button">
+                <i class="sort content ascending icon"></i>
+                <span class="text" data-bind="text: SelectedSortFunction().Name">Sort by</span>
+                <div class="menu">
+                    <div class="scrolling menu" data-bind="foreach: SortFunctions">
+                        <div class="item" data-bind="text: Name, click: function(sortFunction) { $parent.SelectedSortFunction(sortFunction); }">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button class="ui toggle button" 
+                    data-bind="text: ShowDisabledEnvironments.DisplayName, css: { active: ShowDisabledEnvironments.Active() !== true }, click: ShowDisabledEnvironments.Toggle"></button>
+        </div>
+        <span data-bind="text: Name"></span>        
         <div class="sub header">Last server update: <span data-bind="dateString: LastUpdated, datePattern: 'MMMM Do YYYY, H:mm:ss a'"></span></div>
     </h1>
+    
 </div>
-<div class="ui container">
-    Sort by: <span data-bind="foreach: sortFunctions">
-        <button data-bind="text: name, click: $parent.sortFn"></button>
-    </span>
-    |
-    <span data-bind="foreach: filters">
-        <button data-bind="text: displayName, click: toggle"></button>
-    </span>
-</div>
-<div class="ui container tall four cards" data-bind="foreach: sortedEnvironments">
-    <div class="card" data-bind="
-        style: { opacity: IsDisabled() ? 0.5 : 1 }, 
-        attr: { title: IsDisabled() ? 'This Octopus Environment contains a disabled machine' : '' }">
+
+<div class="ui container  four cards" data-bind="foreach: SortedEnvironments">
+    <div class="card" data-bind="style: { opacity: IsDisabled() ? 0.5 : 1 }, attr: { title: IsDisabled() ? 'This Octopus Environment contains a disabled machine' : '' }">
         <div class="content">
             <h4 class="ui header">
                 <span data-bind="text: Name"></span>
