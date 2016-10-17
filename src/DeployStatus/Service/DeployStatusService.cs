@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using DeployStatus.Configuration;
 using DeployStatus.SignalR;
 using log4net;
@@ -25,7 +26,14 @@ namespace DeployStatus.Service
 
             var webAppUrl = deployConfiguration.WebAppUrl;
             log.Info($"Starting web app service on {webAppUrl}...");
-            webApp = WebApp.Start<Startup>(webAppUrl);
+
+            var startOptions = new StartOptions();
+            foreach (var url in webAppUrl.Split(','))
+            {
+                startOptions.Urls.Add(url);
+            }
+
+            webApp = WebApp.Start<Startup>(startOptions);
             log.Info("Started.");
         }
 
