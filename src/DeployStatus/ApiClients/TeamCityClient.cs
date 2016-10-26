@@ -41,9 +41,9 @@ namespace DeployStatus.ApiClients
             return builds;
         }
 
-        private IEnumerable<ChangeInfo> GetLastChanges(TeamCityLastChanges lastChanges)
+        private static IEnumerable<ChangeInfo> GetLastChanges(TeamCityLastChanges lastChanges)
         {
-            if (lastChanges.Change == null)
+            if (lastChanges?.Change == null)
                 return Enumerable.Empty<ChangeInfo>();
 
             return lastChanges.Change.Select(x => new ChangeInfo(x.Username, x.Version));
@@ -51,7 +51,7 @@ namespace DeployStatus.ApiClients
 
         private static IEnumerable<string> GetUsers(TeamCityTriggeredBy triggeredBy)
         {
-            if (triggeredBy == null || triggeredBy.User == null)
+            if (triggeredBy?.User == null)
                 return Enumerable.Empty<string>();
 
             return triggeredBy.User.Select(GetUsername).ToList();
